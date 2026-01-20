@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://shop-lite-eight.vercel.app",
+  "https://gadget-max.vercel.app",
   process.env.CLIENT_URL,
 ].filter(Boolean);
 
