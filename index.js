@@ -5,33 +5,34 @@ require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const allowedOrigins = [
+
+// Allowed origins (use Set to avoid duplicates)
+const allowedOrigins = new Set([
   "http://localhost:3000",
   "https://gadget-max.vercel.app",
   process.env.CLIENT_URL,
-].filter(Boolean);
+].filter(Boolean));
 
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       // Allow requests with no origin (like mobile apps or curl requests)
-//       if (!origin) return callback(null, true);
-//       if (allowedOrigins.indexOf(origin) !== -1) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error("Not allowed by CORS"));
-//       }
-//     },
-//     credentials: true,
-//   })
-// );
-
-
+// CORS configuration
 app.use(cors({
-  origin: allowedOrigins,   // ← function এর বদলে array দাও (সিম্পল)
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin || allowedOrigins.has(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+  optionsSuccessStatus: 204, // For legacy browsers
 }));
 
+// Handle preflight OPTIONS requests explicitly (important for Vercel)
+app.options('*', cors());
+
+// Other middlewares
 app.use(express.json());
 app.use(cookieParser());
 
@@ -39,7 +40,7 @@ app.get("/", (req, res) => {
   res.send("ShopLite API is running");
 });
 
-// Fix for Chrome DevTools CSP error
+// Fix for Chrome DevTools CSP error (optional, keep if needed)
 app.get("/.well-known/appspecific/com.chrome.devtools.json", (req, res) => {
   res.sendStatus(204);
 });
@@ -132,7 +133,6 @@ app.post("/api/auth/signup", (req, res) => {
 app.get("/api/auth/me", (req, res) => {
   const token = req.cookies.auth_token;
   if (token === "mock_token_123") {
-    // In a real app, you'd verify the token and fetch user from DB
     res.json({ user: { email: "demo@example.com", name: "Demo User" } });
   } else {
     res.status(401).json({ message: "Not authenticated" });
@@ -157,11 +157,5 @@ app.post("/api/items", (req, res) => {
   items.push(newItem);
   res.status(201).json(newItem);
 });
-
-// if (process.env.NODE_ENV !== "production") {
-//   app.listen(PORT, () => {
-//     console.log(`Server running on http://localhost:${PORT}`);
-//   });
-// }
 
 module.exports = app;
