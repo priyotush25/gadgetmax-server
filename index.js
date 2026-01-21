@@ -37,7 +37,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
-  res.send("ShopLite API is running");
+  res.send("GadgetMax Server is running");
 });
 
 // Fix for Chrome DevTools CSP error (optional, keep if needed)
