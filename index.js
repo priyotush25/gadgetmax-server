@@ -71,5 +71,7 @@ app.get("/auth/me", (req, res) => {
   else res.status(401).json({ message: "Not authenticated" });
 });
 
+
+
 // Export as serverless function for Vercel
 module.exports = serverless(app);
