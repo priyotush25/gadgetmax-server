@@ -30,7 +30,7 @@ app.use(cors({
 }));
 
 // Handle preflight OPTIONS requests explicitly (important for Vercel)
-app.options('*', cors());
+app.options('/*', cors());
 
 // Other middlewares
 app.use(express.json());
